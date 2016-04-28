@@ -13,6 +13,11 @@ p > label {
   display: block;
 }
 
+h1 {
+  font-family: "helvetica neue",sans-serif;
+  font-weight: 100;
+}
+
 /*.square {
   display: inline-block !important;
   background-color: black !important;
