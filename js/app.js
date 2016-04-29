@@ -2,35 +2,37 @@
 
 (function () {
   angular
-  .module('App',['firebase'])
+  .module('App',[])
   .controller('synth', ['$interval', '$timeout', synthCtrlFunc]);
 
-  var kickArray = [1,2,3,4,5,6,7,8];
-  var snareArray = [1,2,3,4,5,6,7,8];
-  var hatArray = [1,2,3,4,5,6,7,8];
-  var crashArray =[1,2,3,4,5,6,7,8];
+  var socket = io.connect('http://localhost:8000/')
 
-  kickArray.forEach(function(i){
-    $('#kick-Seq').append('<label><input id="kickRow" type="checkbox" data-ng-click="vm.activateKick('+i+')"><span class="col s1 lever '+i+'"></span></label>');
+  var kickArray1 = [1,2,3,4,5,6,7,8];
+  var snareArray1 = [1,2,3,4,5,6,7,8];
+  var hatArray1 = [1,2,3,4,5,6,7,8];
+  var crashArray1 =[1,2,3,4,5,6,7,8];
+
+
+  kickArray1.forEach(function(i){
+    $('#kick-Seq').append('<label><input id="kickRow" type="checkbox" ng-checked="{{vm.inArray('+i+')}}" data-ng-click="vm.activateKick('+i+')"><span class="col s1 lever '+i+'"></span></label>');
   });
-  snareArray.forEach(function(i){
+  snareArray1.forEach(function(i){
     $('#Snare-Seq').append('<label><input id="snareRow" type="checkbox" data-ng-click="vm.activateSnare('+i+')"><span class="col s1 lever '+i+'"></span></label>');
   });
-  hatArray.forEach(function(i){
+  hatArray1.forEach(function(i){
     $('#Hat-Seq').append('<label><input id="hatRow" type="checkbox" data-ng-click="vm.activateHat('+i+')"><span class="col s1 lever '+i+'"></span></label>');
   });
-  crashArray.forEach(function(i){
+  crashArray1.forEach(function(i){
     $('#Crash-Seq').append('<label><input id="crashRow" type="checkbox" data-ng-click="vm.activateCrash('+i+')"><span class="col s1 lever '+i+'"></span></label>');
   });
 
   AudioContext = window.AudioContext || window.webkit;
 
-
     var context = new AudioContext(),
-    oscillator = context.createOscillator(),
-    analyser = context.createAnalyser(),
-    filter = context.createBiquadFilter(),
-    gainNode = context.createGain();
+      oscillator = context.createOscillator(),
+      analyser = context.createAnalyser(),
+      filter = context.createBiquadFilter(),
+      gainNode = context.createGain();
 
     // var canvas = document.getElementById('analyser');
     // var canvasContext = canvas.getContext('2d');
@@ -39,24 +41,22 @@
     // var analyserMethod = "getByteTimeDomainData";
 
     oscillator.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(analyser);
-    gainNode.connect(context.destination);
-    oscillator.start(0);
+      filter.connect(gainNode);
+      gainNode.connect(analyser);
+      gainNode.connect(context.destination);
+      oscillator.start(0);
 
     gainNode.gain.value = 0;
-    oscillator.frequency.value = 0;
-    oscillator.type = 'sawtooth';
+      oscillator.frequency.value = 0;
+      oscillator.type = 'sawtooth';
 
-    filter.type = "lowpass";
-    filter.frequency.value = 2000;
-    filter.gain.value = 25;
+      filter.type = "lowpass";
+      filter.frequency.value = 2000;
+      filter.gain.value = 25;
 
-    analyser.fftSize = 32768;
-    var bufferLength = analyser.frequencyBinCount;
-    var dataArray = new Uint8Array(bufferLength);
-
-
+      analyser.fftSize = 32768;
+      var bufferLength = analyser.frequencyBinCount;
+      var dataArray = new Uint8Array(bufferLength);
 
     function loadKick(x){
       var request = new XMLHttpRequest();
@@ -130,18 +130,43 @@
       // note: on older systems, may have to use deprecated noteOn(time);
     };
 
-
-
-  function synthCtrlFunc($interval, $timeout){
+  function synthCtrlFunc($interval, $timeout, BeatFactory){
 
     var vm = this;
+
+    vm.inArray = function(val) {
+        return function( value) {
+            return vm.activeKick.indexOf(value);
+        };
+    };
+
+
+    vm.setEventHandlers = function(){
+      socket.on('conenct', onSocketConnect)
+      socket.on('disconnect', onSocketDisconnect)
+      socket.on('emitKickArray', onUpdateKick)
+    };
+
+    function onSocketConnect(){
+    }
+    function onSocketDisconnect(){
+    }
+    function onUpdateKick(data){
+      vm.activeKick = data.kickArray;
+      console.log(data);
+      console.log(vm.activeKick);
+    }
+
+    vm.setEventHandlers();
 
     vm.setKickInt = function (){
 
 
       $interval(init, 2000);
 
+
       function init(){
+        console.log(vm.activeKick);
         console.log('fudge');
         var delay1 = null;
         var delay2 = null;
@@ -576,7 +601,6 @@
     };
     vm.setCrashInt();
 
-
     vm.switchOsc = function(selection){
       console.log(selection);
       oscillator.type = selection;
@@ -585,6 +609,7 @@
     vm.currentFreq = 0;
     vm.currentFilt = 2000;
     vm.currentVolume = 0;
+
     vm.activeKick = [];
     vm.activeSnare = [];
     vm.activeHat = [];
@@ -625,12 +650,15 @@
       if($.inArray(val, vm.activeKick) == -1){
         console.log('first', $.inArray(val, vm.activeKick));
         vm.activeKick.push(val);
+
         console.log(vm.activeKick);
       }else{
         console.log('second', $.inArray(val, vm.activeKick));
         vm.activeKick.splice($.inArray(val, vm.activeKick), 1);
         console.log(vm.activeKick);
+
       }
+      socket.emit("update kick",{kickArray: vm.activeKick})
     };
 
     vm.activateSnare = function(val){
