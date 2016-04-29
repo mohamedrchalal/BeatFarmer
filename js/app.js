@@ -1,38 +1,40 @@
 "use strict";
-
+//init Angular App
 (function () {
   angular
   .module('App',[])
   .controller('synth', ['$interval', '$timeout', synthCtrlFunc]);
+  //include $interval and $timeout dependencies (**angular's setInterval and setTimeout**)
 
-  var socket = io.connect('http://localhost:8000/')
+    var socket = io.connect('http://localhost:8000/')
+  //set variable as socket connection to the web socket server (socket.io)
 
-  var kickArray1 = [1,2,3,4,5,6,7,8];
-  var snareArray1 = [1,2,3,4,5,6,7,8];
-  var hatArray1 = [1,2,3,4,5,6,7,8];
-  var crashArray1 =[1,2,3,4,5,6,7,8];
+    var iterationArray = [1,2,3,4,5,6,7,8];
+  //set array to iterate over to make the right amount of switches
 
+    iterationArray.forEach(function(i){
+      $('#kick-Seq').append('<label><input id="kickRow" type="checkbox" ng-checked="vm.inKickArray('+i+')" data-ng-click="vm.activateKick('+i+')"><span class="col s1 lever '+i+'"></span></label>');
+    });
+    iterationArray.forEach(function(i){
+      $('#Snare-Seq').append('<label><input id="snareRow" type="checkbox" ng-checked="vm.inSnareArray('+i+')" data-ng-click="vm.activateSnare('+i+')"><span class="col s1 lever '+i+'"></span></label>');
+    });
+    iterationArray.forEach(function(i){
+      $('#Hat-Seq').append('<label><input id="hatRow" type="checkbox" ng-checked="vm.inHatArray('+i+')" data-ng-click="vm.activateHat('+i+')"><span class="col s1 lever '+i+'"></span></label>');
+    });
+    iterationArray.forEach(function(i){
+      $('#Crash-Seq').append('<label><input id="crashRow" type="checkbox" ng-checked="vm.inCrashArray('+i+')" data-ng-click="vm.activateCrash('+i+')"><span class="col s1 lever '+i+'"></span></label>');
+    });
+  //iterate over the array with jq's forEach to make the necessary amount of checkboxes for each sound
 
-  kickArray1.forEach(function(i){
-    $('#kick-Seq').append('<label><input id="kickRow" type="checkbox" ng-checked="{{vm.inArray('+i+')}}" data-ng-click="vm.activateKick('+i+')"><span class="col s1 lever '+i+'"></span></label>');
-  });
-  snareArray1.forEach(function(i){
-    $('#Snare-Seq').append('<label><input id="snareRow" type="checkbox" data-ng-click="vm.activateSnare('+i+')"><span class="col s1 lever '+i+'"></span></label>');
-  });
-  hatArray1.forEach(function(i){
-    $('#Hat-Seq').append('<label><input id="hatRow" type="checkbox" data-ng-click="vm.activateHat('+i+')"><span class="col s1 lever '+i+'"></span></label>');
-  });
-  crashArray1.forEach(function(i){
-    $('#Crash-Seq').append('<label><input id="crashRow" type="checkbox" data-ng-click="vm.activateCrash('+i+')"><span class="col s1 lever '+i+'"></span></label>');
-  });
+    AudioContext = window.AudioContext || window.webkit;
 
-  AudioContext = window.AudioContext || window.webkit;
-
+  //create new audio context (part of web audio api)
     var context = new AudioContext(),
-      oscillator = context.createOscillator(),
-      analyser = context.createAnalyser(),
-      filter = context.createBiquadFilter(),
-      gainNode = context.createGain();
+    oscillator = context.createOscillator(),
+    analyser = context.createAnalyser(),
+    filter = context.createBiquadFilter(),
+    gainNode = context.createGain();
+  //set variables equal to created audio component nodes
 
     // var canvas = document.getElementById('analyser');
     // var canvasContext = canvas.getContext('2d');
@@ -41,39 +43,45 @@
     // var analyserMethod = "getByteTimeDomainData";
 
     oscillator.connect(filter);
-      filter.connect(gainNode);
-      gainNode.connect(analyser);
-      gainNode.connect(context.destination);
-      oscillator.start(0);
+    filter.connect(gainNode);
+    gainNode.connect(analyser);
+    gainNode.connect(context.destination);
+    //creating signal chain by connecting nodes to each other
+    oscillator.start(0);
+    //activates oscillator
+
 
     gainNode.gain.value = 0;
-      oscillator.frequency.value = 0;
-      oscillator.type = 'sawtooth';
+    oscillator.frequency.value = 0;
+    oscillator.type = 'sawtooth';
+    //initialize base controls for oscillator
 
-      filter.type = "lowpass";
-      filter.frequency.value = 2000;
-      filter.gain.value = 25;
+    filter.type = "lowpass";
+    filter.frequency.value = 2000;
+    filter.gain.value = 25;
+    //initialize filter
 
-      analyser.fftSize = 32768;
-      var bufferLength = analyser.frequencyBinCount;
-      var dataArray = new Uint8Array(bufferLength);
+    analyser.fftSize = 32768;
+    var bufferLength = analyser.frequencyBinCount;
+    var dataArray = new Uint8Array(bufferLength);
+    //initialize analyser
 
     function loadKick(x){
       var request = new XMLHttpRequest();
       request.open('GET', '../sounds/Digitalo_Kick20.wav', true);
       request.responseType = 'arraybuffer';
+      //load audio into buffer
 
-      // Decode asynchronously
       request.onload = function(buffer) {
         context.decodeAudioData(request.response, function(buffer) {
           x.kick = buffer;
-          // playSound(kick);
+
         });
+        // Decode asynchronously
       }
       request.send();
 
     };
-
     function loadSnare(x){
       var request = new XMLHttpRequest();
       request.open('GET', '../sounds/HandClap.wav', true);
@@ -89,7 +97,6 @@
       request.send();
 
     };
-
     function loadCrash(x){
       var request = new XMLHttpRequest();
       request.open('GET', '../sounds/VEC1_Cymbals_OH_035.wav', true);
@@ -105,7 +112,6 @@
       request.send();
 
     };
-
     function loadHat(x){
       var request = new XMLHttpRequest();
       request.open('GET', '../sounds/Dance_Hat01.wav', true);
@@ -121,40 +127,88 @@
       request.send();
 
     };
+    //load sounds and pass x as argument so it can become vm.variable in orter to scope variables to the controller
 
     function playSound(buffer) {
       var source = context.createBufferSource(); // creates a sound source
       source.buffer = buffer;                    // tell the source which sound to play
       source.connect(context.destination);       // connect the source to the context's destination (the speakers)
       source.start(0);                           // play the source now
-      // note: on older systems, may have to use deprecated noteOn(time);
+                                                 // note: on older systems, may have to use deprecated noteOn(time);
     };
 
   function synthCtrlFunc($interval, $timeout, BeatFactory){
-
+    //define controller function and pass it dependencies
     var vm = this;
+    // save context of "this" in a variable called vm
 
-    vm.inArray = function(val) {
-        return function( value) {
-            return vm.activeKick.indexOf(value);
-        };
+    vm.inKickArray = function(value) {
+        if($.inArray(value, vm.activeKick) > -1){
+          return true
+        } else {
+          return false
+        }
     };
 
+    vm.inSnareArray = function(value) {
+        if($.inArray(value, vm.activeSnare) > -1){
+          return true
+        } else {
+          return false
+        }
+    };
+
+    vm.inHatArray = function(value) {
+        if($.inArray(value, vm.activeHat) > -1){
+          return true
+        } else {
+          return false
+        }
+    };
+
+    vm.inCrashArray = function(value) {
+        if($.inArray(value, vm.activeCrash) > -1){
+          return true
+        } else {
+          return false
+        }
+    };
+
+    //function that
 
     vm.setEventHandlers = function(){
-      socket.on('conenct', onSocketConnect)
-      socket.on('disconnect', onSocketDisconnect)
-      socket.on('emitKickArray', onUpdateKick)
+      socket.on('conenct', onSocketConnect);
+      socket.on('disconnect', onSocketDisconnect);
+      socket.on('emitKickArray', onUpdateKick);
+      socket.on('emitSnareArray', onUpdateSnare);
+      socket.on('emitHatArray', onUpdateHat);
+      socket.on('emitCrashArray', onUpdateCrash);
     };
 
     function onSocketConnect(){
-    }
+    };
     function onSocketDisconnect(){
-    }
+    };
+
     function onUpdateKick(data){
       vm.activeKick = data.kickArray;
       console.log(data);
       console.log(vm.activeKick);
+    }
+    function onUpdateSnare(data){
+      vm.activeSnare = data.snareArray;
+      console.log(data);
+      console.log(vm.activeSnare);
+    }
+    function onUpdateHat(data){
+      vm.activeHat = data.hatArray;
+      console.log(data);
+      console.log(vm.activeHat);
+    }
+    function onUpdateCrash(data){
+      vm.activeCrash = data.crashArray;
+      console.log(data);
+      console.log(vm.activeCrash);
     }
 
     vm.setEventHandlers();
@@ -648,17 +702,13 @@
 
     vm.activateKick = function(val){
       if($.inArray(val, vm.activeKick) == -1){
-        console.log('first', $.inArray(val, vm.activeKick));
         vm.activeKick.push(val);
-
         console.log(vm.activeKick);
       }else{
-        console.log('second', $.inArray(val, vm.activeKick));
         vm.activeKick.splice($.inArray(val, vm.activeKick), 1);
         console.log(vm.activeKick);
-
       }
-      socket.emit("update kick",{kickArray: vm.activeKick})
+      socket.emit("updatekick",{kickArray: vm.activeKick})
     };
 
     vm.activateSnare = function(val){
@@ -669,6 +719,7 @@
         vm.activeSnare.splice($.inArray(val, vm.activeSnare), 1);
         console.log(vm.activeSnare)
       }
+      socket.emit("updatesnare",{snareArray: vm.activeSnare})
     };
 
     vm.activateHat = function(val){
@@ -679,6 +730,7 @@
         vm.activeHat.splice($.inArray(val, vm.activeHat));
         console.log(vm.activeHat)
       }
+      socket.emit("updatehat",{hatArray: vm.activeHat})
     };
 
     vm.activateCrash = function(val){
@@ -689,6 +741,7 @@
         vm.activeCrash.splice($.inArray(val, vm.activeCrash));
         console.log(vm.activeCrash)
       }
+      socket.emit("updatecrash",{crashArray: vm.activeCrash})
     };
 
   }

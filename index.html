@@ -23,11 +23,17 @@
   <link rel="stylesheet" href="./css/index.css" media="screen" title="no title" charset="utf-8">
 </head>
 <body>
-  <div class="divider"></div>
-  <div class="row">
-    <h1 class="col s8 offset-s4">Beat Farmer</h1>
-  </div>
-  <div class="container" ng-controller="synth as vm">
+<div class="divider"></div>
+    <div class="row">
+      <h1 class="col s8 offset-s4">Beat Farmer</h1>
+    </div>
+
+    <div class="container" ng-controller="synth as vm">
+
+    <!-- <div class="row">
+      <div class="divider"></div>
+    </div> -->
+
     <div class="row">
       <div class="col s8 offset-s2">
         <button  class="waves-effect waves-light btn" type="button" ng-click="vm.switchOsc('sine')">Sine</button>
@@ -37,7 +43,6 @@
       </div>
 
     </div>
-    <div class="divider"></div>
     <div class="row">
       <div class="col s7 offset-s2">
 
@@ -58,46 +63,59 @@
         </form>
       </div>
     </div>
-  <form class="step-seq">
-    <div class="row">
 
+  <form class="step-seq">
+
+    <div class="row">
       <div class="divider"></div>
     </div>
+
     <div class="row switch" id="kick-Seq">
-    <div class="col s1 offset-s2">
-    <strong>Kick</strong>
-    </div>
-    <div class="col s1 hide-on-small-and-down">
-      <button type="button" class="material-icons" ng-click="vm.playKick()">play_arrow</button>
+      <div class="col s1 offset-s2">
+        <strong>Kick</strong>
+      </div>
     </div>
 
+    <div class="row">
+      <div class="divider"></div>
     </div>
+
     <div class="row switch" id="Snare-Seq">
       <div class="col s1 offset-s2">
-      <strong>Snare</strong>
-      </div>
-      <div class="col s1 hide-on-small-and-down">
-        <button type="button" class="material-icons" ng-click="vm.playSnare()">play_arrow</button>
+        <strong>Snare</strong>
       </div>
     </div>
+
+    <div class="row">
+      <div class="divider"></div>
+    </div>
+
     <div class="row switch" id="Hat-Seq">
       <div class="col s1 offset-s2">
-      <strong>Hi-Hat</strong>
-      </div>
-      <div class="col s1 hide-on-small-and-down">
-        <button type="button" class="material-icons" ng-click="vm.playHat()">play_arrow</button>
+        <strong>Hi-Hat</strong>
       </div>
     </div>
+
+    <div class="row">
+      <div class="divider"></div>
+    </div>
+
     <div class="row switch" id="Crash-Seq">
       <div class="col s1 offset-s2">
-      <strong>Crash</strong>
-      </div>
-      <div class="col s1 hide-on-small-and-down">
-        <button type="button" class="material-icons" ng-click="vm.playCrash()">play_arrow</button>
+        <strong>Crash</strong>
       </div>
     </div>
+
+    <div class="row">
+      <div class="divider"></div>
+    </div>
+
   </form>
-  <div class="divider"></div>
+
+  <div class="row">
+    <div class="divider"></div>
+  </div>
+
 
   </div>
   <script type="text/javascript" src="http://localhost:8000/socket.io/socket.io.js"></script>
