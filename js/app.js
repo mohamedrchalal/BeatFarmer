@@ -183,6 +183,7 @@
       socket.on('emitSnareArray', onUpdateSnare);
       socket.on('emitHatArray', onUpdateHat);
       socket.on('emitCrashArray', onUpdateCrash);
+      socket.on('emitOscVol', onUpdateOscVol);
     };
 
     function onSocketConnect(){
@@ -209,6 +210,12 @@
       vm.activeCrash = data.crashArray;
       console.log(data);
       console.log(vm.activeCrash);
+    }
+
+    function onUpdateOscVol(data){
+      vm.currentVolume = data.oscVol;
+      console.log(data);
+      console.log(vm.currentVolume);
     }
 
     vm.setEventHandlers();
@@ -674,7 +681,10 @@
     };
     vm.volChange = function() {
       gainNode.gain.value = vm.currentVolume;
+      console.log(vm.currentVolume);
+      socket.emit("updateOscVol",{oscVol: vm.currentVolume});
     };
+
     vm.freqChange = function() {
       oscillator.frequency.value = vm.currentFreq;
     };

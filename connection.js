@@ -25,6 +25,7 @@ function onSocketConnection(client) {
     client.on("updatesnare", onUpdateSnare);
     client.on("updatehat", onUpdateHat);
     client.on("updatecrash", onUpdateCrash);
+    client.on("updateOscVol", onUpdateCrash);
 
 };
 
@@ -47,6 +48,11 @@ function onUpdateCrash(data){
   activeCrashs = data.crashArray;
   this.broadcast.emit('emitCrashArray', {crashArray: data.crashArray});
   util.log('crashupdated', activeCrashs);
+};
+function onUpdatevol(data){
+  oscVol = data.oscVol;
+  this.broadcast.emit('emitOscVol', {oscVol: data.oscVol});
+  util.log('oscVolupdated', oscVol);
 };
 function onClientDisconnect(){
 console.log('later')
