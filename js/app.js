@@ -184,6 +184,10 @@
       socket.on('emitHatArray', onUpdateHat);
       socket.on('emitCrashArray', onUpdateCrash);
       socket.on('emitOscVol', onUpdateOscVol);
+      socket.on('emitPitch', onUpdatePitch);
+      socket.on('emitFilterFreq', onUpdateFilterFreq);
+      socket.on('emitOscType', onUpdateOscType);
+
     };
 
     function onSocketConnect(){
@@ -211,11 +215,25 @@
       console.log(data);
       console.log(vm.activeCrash);
     }
-
     function onUpdateOscVol(data){
       vm.currentVolume = data.oscVol;
       console.log(data);
       console.log(vm.currentVolume);
+    }
+    function onUpdateFilterFreq(data){
+      vm.currentFilt = data.filterFreq;
+      console.log(data);
+      console.log(vm.currentFilt);
+    }
+    function onUpdatePitch(data){
+      vm.currentFreq = data.pitch;
+      console.log(data);
+      console.log(vm.currentFreq);
+    }
+    function onUpdateOscType(data){
+    oscillator.type = data.oscType;
+      console.log(data);
+      console.log(oscillator.type);
     }
 
     vm.setEventHandlers();
@@ -665,6 +683,7 @@
     vm.switchOsc = function(selection){
       console.log(selection);
       oscillator.type = selection;
+      socket.emit("updateOscType",{oscType: selection});
     };
 
     vm.currentFreq = 0;
@@ -678,6 +697,7 @@
 
     vm.filterChange = function() {
       filter.frequency.value = vm.currentFilt;
+      socket.emit("updateFilterFreq",{filterFreq: vm.currentFilt});
     };
     vm.volChange = function() {
       gainNode.gain.value = vm.currentVolume;
@@ -687,6 +707,7 @@
 
     vm.freqChange = function() {
       oscillator.frequency.value = vm.currentFreq;
+      socket.emit("updatePitch",{pitch: vm.currentFreq});
     };
 
     loadKick (vm);

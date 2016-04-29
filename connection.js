@@ -25,7 +25,10 @@ function onSocketConnection(client) {
     client.on("updatesnare", onUpdateSnare);
     client.on("updatehat", onUpdateHat);
     client.on("updatecrash", onUpdateCrash);
-    client.on("updateOscVol", onUpdateCrash);
+    client.on("updateOscVol", onUpdateVol);
+    client.on("updateFilterFreq", onUpdateFilterFreq);
+    client.on("updatePitch", onUpdatePitch);
+    client.on("updateOscType", onUpdateOscType);
 
 };
 
@@ -49,11 +52,29 @@ function onUpdateCrash(data){
   this.broadcast.emit('emitCrashArray', {crashArray: data.crashArray});
   util.log('crashupdated', activeCrashs);
 };
-function onUpdatevol(data){
+function onUpdateVol(data){
   oscVol = data.oscVol;
   this.broadcast.emit('emitOscVol', {oscVol: data.oscVol});
   util.log('oscVolupdated', oscVol);
 };
+function onUpdateFilterFreq(data){
+  filterFreq = data.filterFreq;
+  this.broadcast.emit('emitFilterFreq', {filterFreq: data.filterFreq});
+  util.log('filterFrequpdated', filterFreq);
+};
+function onUpdatePitch(data){
+  pitch = data.filterPitch;
+  this.broadcast.emit('emitPitch', {pitch: data.pitch});
+  util.log('pitchupdated', pitch);
+};
+function onUpdateOscType(data){
+  oscType = data.oscType;
+  this.broadcast.emit('emitOscType', {oscType: data.oscType});
+  util.log('oscTypeUpdated', oscType);
+};
+
+
+
 function onClientDisconnect(){
 console.log('later')
 };
